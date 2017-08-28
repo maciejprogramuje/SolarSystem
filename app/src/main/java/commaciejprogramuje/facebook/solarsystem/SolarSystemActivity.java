@@ -42,6 +42,9 @@ public class SolarSystemActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        navigationView.setCheckedItem(R.id.nav_planets);
+        onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_planets));
     }
 
     @Override
@@ -83,10 +86,13 @@ public class SolarSystemActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_planets) {
-            SolarObjectsFragment fragment = new SolarObjectsFragment();
+            SolarObjectsFragment fragment = SolarObjectsFragment.newInstance(new SolarObject[]{
+                    new SolarObject("Earth"),
+                    new SolarObject("Mars")
+            });
 
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.add(R.id.containerLayout, fragment);
+            fragmentTransaction.replace(R.id.containerLayout, fragment);
             fragmentTransaction.commit();
 
         } else if (id == R.id.nav_moons) {

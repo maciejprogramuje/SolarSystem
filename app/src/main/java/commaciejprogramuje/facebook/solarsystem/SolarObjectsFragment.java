@@ -2,10 +2,12 @@ package commaciejprogramuje.facebook.solarsystem;
 
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 
 /**
@@ -13,6 +15,8 @@ import android.view.ViewGroup;
  */
 public class SolarObjectsFragment extends Fragment {
 
+
+    public static final String OBJECTS_KEY = "objects";
 
     public SolarObjectsFragment() {
         // Required empty public constructor
@@ -24,6 +28,26 @@ public class SolarObjectsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_solar_objects, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        TextView textView = view.findViewById(R.id.objectTextView);
+
+        SolarObject[] solarObjects = (SolarObject[]) getArguments().getSerializable(OBJECTS_KEY);
+        for(SolarObject object : solarObjects) {
+            textView.setText(textView.getText().toString() + object.getName());
+        }
+    }
+
+    public static SolarObjectsFragment newInstance(SolarObject[] objects) {
+        Bundle args = new Bundle();
+        args.putSerializable(OBJECTS_KEY, objects);
+
+        SolarObjectsFragment fragment = new SolarObjectsFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
 }
