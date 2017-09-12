@@ -4,10 +4,14 @@ package commaciejprogramuje.facebook.solarsystem;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 
 /**
@@ -17,6 +21,8 @@ public class SolarObjectsFragment extends Fragment {
 
 
     public static final String OBJECTS_KEY = "objects";
+    @InjectView(R.id.objectRecyclerView)
+    RecyclerView objectRecyclerView;
 
     public SolarObjectsFragment() {
         // Required empty public constructor
@@ -27,18 +33,18 @@ public class SolarObjectsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_solar_objects, container, false);
+        View view = inflater.inflate(R.layout.fragment_solar_objects, container, false);
+        ButterKnife.inject(this, view);
+        return view;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        TextView textView = view.findViewById(R.id.objectTextView);
 
         SolarObject[] solarObjects = (SolarObject[]) getArguments().getSerializable(OBJECTS_KEY);
-        for(SolarObject object : solarObjects) {
-            textView.setText(textView.getText().toString() + object.getName());
-        }
+        objectRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+        objectRecyclerView.setAdapter(new SolarObjectAdapter(solarObjects));
     }
 
     public static SolarObjectsFragment newInstance(SolarObject[] objects) {
@@ -50,4 +56,9 @@ public class SolarObjectsFragment extends Fragment {
         return fragment;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.reset(this);
+    }
 }
