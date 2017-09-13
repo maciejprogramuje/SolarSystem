@@ -6,22 +6,23 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SolarObjectsFragment extends Fragment {
-
+public class SolarObjectsFragment extends Fragment implements SolarObjectAdapter.SolarObjectClickedListener {
 
     public static final String OBJECTS_KEY = "objects";
-    @InjectView(R.id.objectRecyclerView)
+
+    @Bind(R.id.objectRecyclerView)
     RecyclerView objectRecyclerView;
 
     public SolarObjectsFragment() {
@@ -34,7 +35,7 @@ public class SolarObjectsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_solar_objects, container, false);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
         return view;
     }
 
@@ -44,7 +45,9 @@ public class SolarObjectsFragment extends Fragment {
 
         SolarObject[] solarObjects = (SolarObject[]) getArguments().getSerializable(OBJECTS_KEY);
         objectRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-        objectRecyclerView.setAdapter(new SolarObjectAdapter(solarObjects));
+        SolarObjectAdapter adapter = new SolarObjectAdapter(solarObjects);
+        adapter.setSolarObjectClickedListener(this);
+        objectRecyclerView.setAdapter(adapter);
     }
 
     public static SolarObjectsFragment newInstance(SolarObject[] objects) {
@@ -59,6 +62,11 @@ public class SolarObjectsFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        ButterKnife.reset(this);
+        ButterKnife.unbind(this);
+    }
+
+    @Override
+    public void solarObjectClicked(SolarObject solarObject) {
+        Log.w("UWAGA", solarObject.getName());
     }
 }
