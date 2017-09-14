@@ -2,63 +2,67 @@ package commaciejprogramuje.facebook.solarsystem;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 
-public class SolarSystemActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
+public class SolarSystemActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, MoonsFragment.TabCallBack {
     SolarObject[] planets;
     SolarObject[] others;
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
+    @Bind(R.id.moonsTabLayout)
+    TabLayout moonsTabLayout;
+    @Bind(R.id.containerLayout)
+    FrameLayout containerLayout;
+    @Bind(R.id.nav_view)
+    NavigationView navView;
+    @Bind(R.id.drawer_layout)
+    DrawerLayout drawerLayout;
     private SolarObject[] objectsWithMoons;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_solar_system);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        ButterKnife.bind(this);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
+                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        navView.setNavigationItemSelectedListener(this);
 
         planets = SolarObject.loadArrayFromJson(this, "planets");
         others = SolarObject.loadArrayFromJson(this, "others");
 
         ArrayList<SolarObject> arrayList = new ArrayList<>();
-        for(SolarObject planet : planets) {
-            if(planet.hasMoons()) {
+        for (SolarObject planet : planets) {
+            if (planet.hasMoons()) {
                 arrayList.add(planet);
             }
         }
-        for(SolarObject other : others) {
-            if(other.hasMoons()) {
+        for (SolarObject other : others) {
+            if (other.hasMoons()) {
                 arrayList.add(other);
             }
         }
@@ -66,8 +70,8 @@ public class SolarSystemActivity extends AppCompatActivity implements Navigation
         objectsWithMoons = new SolarObject[arrayList.size()];
         objectsWithMoons = arrayList.toArray(objectsWithMoons);
 
-        navigationView.setCheckedItem(R.id.nav_planets);
-        onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_planets));
+        navView.setCheckedItem(R.id.nav_planets);
+        onNavigationItemSelected(navView.getMenu().findItem(R.id.nav_planets));
     }
 
     @Override
@@ -112,21 +116,34 @@ public class SolarSystemActivity extends AppCompatActivity implements Navigation
             SolarObjectsFragment fragment = SolarObjectsFragment.newInstance(planets);
             replaceFragment(fragment);
         } else if (id == R.id.nav_moons) {
-            SolarObjectsFragment fragment = SolarObjectsFragment.newInstance(objectsWithMoons);
-            replaceFragment(fragment);
+
+            replaceFragment(MoonsFragment.newInstance(objectsWithMoons));
         } else if (id == R.id.nav_other) {
             SolarObjectsFragment fragment = SolarObjectsFragment.newInstance(others);
             replaceFragment(fragment);
-        } 
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    private void replaceFragment(SolarObjectsFragment fragment) {
+    private void replaceFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.containerLayout, fragment);
         fragmentTransaction.commit();
+    }
+
+    @Override
+    public void showTabs(ViewPager viewPager) {
+        moonsTabLayout.setVisibility(View.VISIBLE);
+        moonsTabLayout.setupWithViewPager(viewPager);
+    }
+
+    @Override
+    public void hideTabs() {
+        moonsTabLayout.removeAllTabs();
+        moonsTabLayout.setOnTabSelectedListener(null);
+        moonsTabLayout.setVisibility(View.GONE);
     }
 }
