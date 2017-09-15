@@ -119,4 +119,8 @@ public class SolarObject implements Serializable{
     public boolean hasMoons() {
         return moons != null && moons.length > 0;
     }
+
+    public String getImagePath() {
+        return "file:///android_asset/" + getImage();
+    }
 }
