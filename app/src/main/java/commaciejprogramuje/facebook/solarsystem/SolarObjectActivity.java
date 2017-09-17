@@ -8,6 +8,8 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.view.View;
@@ -21,7 +23,7 @@ import java.io.IOException;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class SolarObjectActivity extends AppCompatActivity {
+public class SolarObjectActivity extends AppCompatActivity implements SolarObjectAdapter.SolarObjectClickedListener {
 
     public static final String OBJECT_KEY = "object";
     @Bind(R.id.objectImageView)
@@ -36,6 +38,10 @@ public class SolarObjectActivity extends AppCompatActivity {
     TextView objectTextView;
     @Bind(R.id.fab)
     FloatingActionButton fab;
+    @Bind(R.id.moonsLabel)
+    TextView moonsLabel;
+    @Bind(R.id.moonsRecyclerView)
+    RecyclerView moonsRecyclerView;
     private SolarObject solarObject;
 
     @Override
@@ -72,11 +78,27 @@ public class SolarObjectActivity extends AppCompatActivity {
                 .placeholder(R.drawable.planet_placeholder)
                 .fitCenter()
                 .into(objectImageView);
+
+        moonsRecyclerView.setVisibility(solarObject.hasMoons() ? View.VISIBLE : View.GONE);
+        moonsLabel.setVisibility(solarObject.hasMoons() ? View.VISIBLE : View.GONE);
+
+        if(solarObject.hasMoons()) {
+            SolarObjectAdapter adapter = new SolarObjectAdapter(solarObject.getMoons());
+            adapter.setSolarObjectClickedListener(this);
+            moonsRecyclerView.setAdapter(adapter);
+            moonsRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+            moonsRecyclerView.setNestedScrollingEnabled(false);
+        }
     }
 
     public static void start(Activity activity, SolarObject solarObject) {
         Intent intent = new Intent(activity, SolarObjectActivity.class);
         intent.putExtra(OBJECT_KEY, solarObject);
         activity.startActivity(intent);
+    }
+
+    @Override
+    public void solarObjectClicked(SolarObject solarObject) {
+        SolarObjectActivity.start(this, solarObject);
     }
 }
